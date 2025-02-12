@@ -1,12 +1,19 @@
 name: generate animation
 
 on:
+  # run automatically every 6 hours
   schedule:
-    - cron: "0 */6 * * *"  # 每6小时运行一次
+    - cron: "0 */6 * * *"  # 每6小时运行一次 
+  
+  # allows to manually run the job at any time
   workflow_dispatch:
+  
+  # run on every push on the master branch
   push:
     branches:
-      - master
+    - master
+    
+  
 
 jobs:
   generate:
@@ -14,20 +21,21 @@ jobs:
       contents: write
     runs-on: ubuntu-latest
     timeout-minutes: 5
-
+    
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Generate Snake Animation
+      # generates a snake game from a github user (<github_user_name>) contributions graph, output a svg animation at <svg_out_path>
+      - name: generate github-contribution-grid-snake.svg
         uses: Platane/snk/svg-only@v3
         with:
           github_user_name: ${{ github.repository_owner }}
           outputs: |
             dist/github-contribution-grid-snake.svg
             dist/github-contribution-grid-snake-dark.svg?palette=github-dark
-
-      - name: Push to GitHub Pages
+          
+          
+      # push the content of <build_dir> to a branch
+      # the content will be available at https://raw.githubusercontent.com/<github_user>/<repository>/<target_branch>/<file> , or as github page
+      - name: push github-contribution-grid-snake.svg to the output branch
         uses: crazy-max/ghaction-github-pages@v3.1.0
         with:
           target_branch: output
@@ -38,13 +46,17 @@ jobs:
       - name: Install qiniu CLI
         run: |
           curl -sSL https://github.com/qiniu/qshell/releases/download/v2.13.0/qshell-v2.13.0-linux-amd64.tar.gz | tar -xz -C /usr/local/bin
-
+          chmod +x /usr/local/bin/qshell
+      
       - name: Sync files to Qiniu
         run: |
-          export QINIU_ACCESS_KEY="${{ secrets.QINIU_ACCESS_KEY }}"
-          export QINIU_SECRET_KEY="${{ secrets.QINIU_SECRET_KEY }}"
-          # 配置七牛账户
-          qshell account $QINIU_ACCESS_KEY $QINIU_SECRET_KEY
+          # 使用引号包裹变量，并使用临时文件存储账户信息
+          echo "${{ secrets.QINIU_ACCESS_KEY }} ${{ secrets.QINIU_SECRET_KEY }}" > account.conf
+          qshell account --import account.conf
+          
           # 上传文件
-          qshell fput -bucket specialhua -key snake/github-contribution-grid-snake.svg dist/github-contribution-grid-snake.svg
-          qshell fput -bucket specialhua -key snake/github-contribution-grid-snake-dark.svg dist/github-contribution-grid-snake-dark.svg
+          qshell fput specialhua snake/github-contribution-grid-snake.svg dist/github-contribution-grid-snake.svg
+          qshell fput specialhua snake/github-contribution-grid-snake-dark.svg dist/github-contribution-grid-snake-dark.svg
+          
+          # 清理临时文件
+          rm account.conf
