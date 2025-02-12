@@ -27,20 +27,11 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 # 新增同步到 Gitee 的步骤
-      - name: Sync to Gitee
-        env:
-          GITEE_USER: ${{ secrets.GITEE_USERNAME }}  # 你在 Secrets 中定义的用户名
-          GITEE_TOKEN: ${{ secrets.GITEE_TOKEN }}    # 你在 Secrets 中定义的令牌
-        run: |
-          # 配置 Git 身份（避免后续操作报错）
-          git config --global user.name "GitHub Actions"
-          git config --global user.email "actions@github.com"
-          
-          # 动态构建仓库地址（避免硬编码敏感信息）
-          REPO_URL="https://${GITEE_USER}:${GITEE_TOKEN}@gitee.com/${GITEE_USER}/githubSNK.git"
-          
-          # 添加远程仓库并推送
-          git remote add gitee $REPO_URL
-          git fetch origin output
-          git checkout output
-          git push gitee output:output -f
+      - name: Upload to Qiniu
+        uses: qiniu/action-upload@v1
+        with:
+          access_key: ${{ secrets.QINIU_ACCESS_KEY }}
+          secret_key: ${{ secrets.QINIU_SECRET_KEY }}
+          bucket: specialhua
+          src_dir: 'dist/'
+          dest_dir: 'snake/'
