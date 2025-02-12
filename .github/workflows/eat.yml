@@ -26,12 +26,16 @@ jobs:
           build_dir: dist
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-# 新增同步到 Gitee 的步骤
-      - name: Upload to Qiniu
-        uses: qiniu/action-upload@v1
-        with:
-          access_key: ${{ secrets.QINIU_ACCESS_KEY }}
-          secret_key: ${{ secrets.QINIU_SECRET_KEY }}
-          bucket: specialhua
-          src_dir: 'dist/'
-          dest_dir: 'snake/'
+# 新增同步到qiniu的步骤
+      - name: Upload via qshell
+      env:
+        QINIU_ACCESS_KEY: ${{ secrets.QINIU_AK }}
+        QINIU_SECRET_KEY: ${{ secrets.QINIU_SK }}
+      run: |
+        # 下载七牛CLI工具
+        wget http://devtools.qiniu.com/qshell-linux-x64.zip
+        unzip qshell-linux-x64.zip
+        # 配置账户
+        ./qshell account $QINIU_ACCESS_KEY $QINIU_SECRET_KEY
+        # 同步本地目录到云端
+        ./qshell qupload2 --src-dir=dist --bucket=specialhua --key-prefix=snake/
