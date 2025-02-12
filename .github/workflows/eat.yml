@@ -47,16 +47,15 @@ jobs:
         run: |
           curl -sSL https://github.com/qiniu/qshell/releases/download/v2.13.0/qshell-v2.13.0-linux-amd64.tar.gz | tar -xz -C /usr/local/bin
           chmod +x /usr/local/bin/qshell
-      
+
       - name: Sync files to Qiniu
         run: |
-          # 使用引号包裹变量，并使用临时文件存储账户信息
-          echo "${{ secrets.QINIU_ACCESS_KEY }} ${{ secrets.QINIU_SECRET_KEY }}" > account.conf
-          qshell account --import account.conf
+          echo "Configuring qshell account..."
+          qshell account "${{ secrets.QINIU_ACCESS_KEY }}" "${{ secrets.QINIU_SECRET_KEY }}" default --overwrite
           
-          # 上传文件
+          echo "Checking account status..."
+          qshell account
+          
+          echo "Uploading files..."
           qshell fput specialhua snake/github-contribution-grid-snake.svg dist/github-contribution-grid-snake.svg
           qshell fput specialhua snake/github-contribution-grid-snake-dark.svg dist/github-contribution-grid-snake-dark.svg
-          
-          # 清理临时文件
-          rm account.conf
