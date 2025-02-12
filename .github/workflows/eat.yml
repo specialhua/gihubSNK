@@ -47,8 +47,8 @@ jobs:
         run: |
           curl -sSL https://github.com/qiniu/qshell/releases/download/v2.13.0/qshell-v2.13.0-linux-amd64.tar.gz | tar -xz -C /usr/local/bin
 
-       - name: Sync files to Qiniu
-         run: |
+      - name: Sync files to Qiniu
+        run: |
           export QINIU_ACCESS_KEY="${{ secrets.QINIU_ACCESS_KEY }}"
           export QINIU_SECRET_KEY="${{ secrets.QINIU_SECRET_KEY }}"
           # 配置七牛账户
