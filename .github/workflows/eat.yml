@@ -27,15 +27,14 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 # 新增同步到qiniu的步骤
-      - name: Configure AWS CLI
-        uses: aws-actions/configure-aws-credentials@v3
-        with:
-          aws-access-key-id: ${{ secrets.QINIU_ACCESS_KEY }}
-          aws-secret-access-key: ${{ secrets.QINIU_SECRET_KEY }}
-          aws-region: us-east-1 # 七牛S3兼容服务要求必填但实际无效的占位参数
-      
-      - name: Sync files
+      - name: Install qiniu CLI
         run: |
-          aws s3 sync dist/ s3://specialhua/snake/ \
-            --endpoint-url=http://s3-cn-south-1.qiniucs.com \
-            --no-verify-ssl  # 若出现证书错误可添加此参数
+          curl -sSL https://github.com/qiniu/qshell/releases/download/v2.0.3/qshell-linux-amd64-v2.0.3.tar.gz | tar -xz -C /usr/local/bin
+
+      - name: Sync files to Qiniu
+        run: |
+          export QINIU_ACCESS_KEY="${{ secrets.QINIU_ACCESS_KEY }}"
+          export QINIU_SECRET_KEY="${{ secrets.QINIU_SECRET_KEY }}"
+          qshell account $QINIU_ACCESS_KEY $QINIU_SECRET_KEY
+          qshell fput -bucket specialhua -key snake/github-contribution-grid-snake.svg dist/github-contribution-grid-snake.svg
+          qshell fput -bucket specialhua -key snake/github-contribution-grid-snake-dark.svg dist/github-contribution-grid-snake-dark.svg
