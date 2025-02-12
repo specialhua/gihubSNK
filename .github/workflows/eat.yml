@@ -32,8 +32,10 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.QINIU_S3_ID }}
           aws-secret-access-key: ${{ secrets.QINIU_S3_KEY }}
-          endpoint-url: http://s3-cn-east-1.qiniucs.com
+          aws-region: us-east-1  # 七牛S3兼容服务要求必填但实际无效的占位参数
       
       - name: Sync files
         run: |
-          aws s3 sync dist/ s3://specialhua/snake/ --endpoint-url=http://s3-cn-east-1.qiniucs.com
+          aws s3 sync dist/ s3://specialhua/snake/ \
+            --endpoint-url=http://s3-cn-south-1.qiniucs.com \
+            --no-verify-ssl  # 若出现证书错误可添加此参数
