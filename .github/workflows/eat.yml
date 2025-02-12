@@ -30,9 +30,9 @@ jobs:
       - name: Configure AWS CLI
         uses: aws-actions/configure-aws-credentials@v2
         with:
-          aws-access-key-id: ${{ secrets.QINIU_S3_ID }}
-          aws-secret-access-key: ${{ secrets.QINIU_S3_KEY }}
-          aws-region: us-east-1  # 七牛S3兼容服务要求必填但实际无效的占位参数
+          aws-access-key-id: ${{ secrets.QINIU_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.QINIU_SECRET_KEY }}
+          aws-region: cn-south-1  # 七牛S3兼容服务要求必填但实际无效的占位参数
       
       - name: Sync files
         run: |
