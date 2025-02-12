@@ -29,7 +29,7 @@ jobs:
 # 新增同步到qiniu的步骤
       - name: Install qiniu CLI
         run: |
-          curl -sSL https://github.com/qiniu/qshell/releases/download/v2.0.3/qshell-linux-amd64-v2.0.3.tar.gz | tar -xz -C /usr/local/bin
+          curl -sSL https://github.com/qiniu/qshell/releases/download/v2.13.0/qshell-v2.13.0-linux-amd64.tar.gz | tar -xz -C /usr/local/bin
 
       - name: Sync files to Qiniu
         run: |
